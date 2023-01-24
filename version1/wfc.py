@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 def getPatterns():
     patterns = []
@@ -11,19 +12,22 @@ def getPatterns():
             
 
 def checkCompatibility(matrix1, matrix2, w, h):
-    if np.abs(w) >= W or np.abs(h) >= H:
+    if np.abs(w) >= matrix1.shape[1] or np.abs(h) >= matrix1.shape[0]:
         return False
-    return np.array_equal(
-        matrix1[:w,:h],
-        matrix2[-w:,-h]
-    )
+    try:
+        return np.array_equal(
+            matrix1[:w,:h],
+            matrix2[-w:,-h]
+        )
+    except:
+        return False
 
 def propagateWave(i,j):
     global checkedSlots
     global collapseList
     checkedSlots = np.zeros(spaceMatrix.shape[:2])
     checkedSlots[i,j]
-    collapse = [(i,j)]
+    collapseList = [(i,j)]
     while len(collapseList)>0:
         collapse(*collapseList[0])
 
@@ -43,18 +47,18 @@ def collapse(i,j):
         else:
             spaceMatrix[i,j,k] = 0
 
-    collapse.append((i-1,j-1))
-    collapse.append((i-1,j+1))
-    collapse.append((i+1,j-1))
-    collapse.append((i+1,j+1))
+    collapseList.append((i-1,j-1))
+    collapseList.append((i-1,j+1))
+    collapseList.append((i+1,j-1))
+    collapseList.append((i+1,j+1))
 
 def compareAll(pattern, i, j):
     for y in range(spaceMatrix.shape[0]):
         for x in range(spaceMatrix.shape[1]):
-            for k,prob enumerate(spaceMatrix[y,x,:]):
+            for k,prob in enumerate(spaceMatrix[y,x,:]):
                 if prob == 0:
                     continue
-                if not checkCompatibility(patterns[k],pattern, i-y, j-x)
+                if not checkCompatibility(patterns[k],pattern, i-y, j-x):
                     return 0
     return 1
 
@@ -90,14 +94,14 @@ def wfc(sample, w, h, outputW, outputH):
         undetermined = undeterminedSlots()
         if len(undetermined) == 0:
             break
-        
-        propagateWave(*np.random.choice(undetermined))
+        propagateWave(*random.choice(undetermined))
     
     outputMatrix = np.ones((outputH-H, outputW-W))
-    for i in range(outputH):
-        for j in range(outputW):
+    for i in range(outputH-H):
+        for j in range(outputW-W):
             nonzero = np.nonzero(spaceMatrix[i,j,:])
             if len(nonzero) == 0:
                 paint(outputMatrix, patterns[nonzero[0]], i, j)
+    return outputMatrix
             
     

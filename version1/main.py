@@ -14,10 +14,11 @@ def main():
         return
     img = 1-np.array(img)[:,:,0]//255
 
-    output = wfc.wfc(img,12,7)
+    output = wfc.wfc(img,4,7,48,12)
     
     outim = (1-output)*255
     outim = Image.fromarray(np.uint8(outim), 'L')
+    outim.save('salida/out.png')
 
 if __name__=='__main__':
     main()
